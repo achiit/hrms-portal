@@ -42,10 +42,10 @@ export default function EmployeeInfo({ user }: { user: any }) {
           <div>
             <p className="font-bold">Location</p>
             <p>
-              {todayAttendance?.location
-                ? `${todayAttendance.location.latitude}, ${todayAttendance.location.longitude}`
-                : 'Did not punch in yet'}
-            </p>
+      {todayAttendance?.location
+        ? todayAttendance.location
+        : 'Did not punch in yet'}
+    </p>
           </div>
         </div>
       </div>

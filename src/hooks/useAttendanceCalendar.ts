@@ -33,26 +33,30 @@ export const useAttendanceCalendar = () => {
   const handleDateClick = async (date: Date) => {
     const dateKey = format(date, 'yyyy-MM-dd');
     const attendance = attendanceData[dateKey];
-
+  
     if (!attendance || !attendance.punchIn) {
       // Handle regularization for absent days
       return {
         type: 'absent',
-        date
+        date,
       };
     }
-
-    if (isLateLogin(attendance.punchIn.toDate()) || !attendance.punchOut) {
+  
+    if (
+      isLateLogin(attendance.punchIn.toDate()) ||
+      !attendance.punchOut
+    ) {
       // Handle regularization for late/incomplete days
       return {
         type: 'incomplete',
         date,
-        attendance
+        attendance,
       };
     }
-
-    return null;
+  
+    return null; // No action for on-time or regularized days
   };
+  
 
   return {
     attendanceData,

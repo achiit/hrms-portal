@@ -2,6 +2,7 @@ import React from 'react';
 import EmployeeList from './EmployeeList';
 import RegularisationRequests from './RegularisationRequests';
 import AddEmployee from './AddEmployee';
+import TodayAttendance from './TodayAttendance';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
@@ -21,7 +22,10 @@ export default function AdminDashboard() {
             <AddEmployee />
             <EmployeeList />
           </div>
-          <RegularisationRequests />
+          <div className="space-y-6">
+            <RegularisationRequests />
+            <TodayAttendance />
+          </div>
         </div>
       </div>
     </div>

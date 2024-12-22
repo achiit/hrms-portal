@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAttendanceStats } from '../../hooks/useAttendanceStats';
 import { Calendar, AlertCircle, Clock } from 'lucide-react';
+import RegularisationModal from './RegularisationModal';
 
 export default function AttendanceOverview() {
   const { stats, openRegularisationModal } = useAttendanceStats();
+  const [modalType, setModalType] = useState(null);
+
+  const handleOpenModal = (type) => {
+    setModalType(type);
+  };
+
+  const handleCloseModal = () => {
+    setModalType(null);
+  };
 
   return (
     <div className="card">
@@ -18,7 +28,7 @@ export default function AttendanceOverview() {
         </div>
         <div
           className="card bg-red-100 cursor-pointer"
-          onClick={() => openRegularisationModal('absent')}
+          onClick={() => handleOpenModal('absent')}
         >
           <div className="flex items-center gap-2">
             <AlertCircle className="text-red-600" />
@@ -28,7 +38,7 @@ export default function AttendanceOverview() {
         </div>
         <div
           className="card bg-yellow-100 cursor-pointer"
-          onClick={() => openRegularisationModal('incomplete')}
+          onClick={() => handleOpenModal('incomplete')}
         >
           <div className="flex items-center gap-2">
             <Calendar className="text-yellow-600" />
@@ -44,6 +54,10 @@ export default function AttendanceOverview() {
           <p className="text-2xl font-bold mt-2">{stats.late}</p>
         </div>
       </div>
+
+      {modalType && (
+        <RegularisationModal type={modalType} onClose={handleCloseModal} />
+      )}
     </div>
   );
 }

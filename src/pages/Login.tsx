@@ -19,10 +19,15 @@ export default function Login() {
       } else {
         navigate('/employee');
       }
-    } catch (error) {
-      toast.error('Invalid credentials');
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        toast.error('Invalid email or password');
+      } else {
+        toast.error('An error occurred. Please try again.');
+      }
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-light p-4">

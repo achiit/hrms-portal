@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth, db } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: any;
@@ -19,11 +18,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
-        const isAdminUser = user.email === 'admin@admin.com';
-        setIsAdmin(isAdminUser);
+        setIsAdmin(user.email === 'admin@admin.com'); // Check if logged-in user is admin
       } else {
         setIsAdmin(false);
       }
@@ -34,11 +32,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    if (email === 'admin@admin.com' && password === '123456') {
+      // Hardcoded admin credentials
+      const adminUser = { email: 'admin@admin.com', uid: 'admin123' }; // Mocked user object
+      setUser(adminUser);
+      setIsAdmin(true);
+      return;
+    }
+
+    // For other users, use Firebase Auth
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    setUser(userCredential.user);
   };
 
   const logout = async () => {
     await signOut(auth);
+    setUser(null);
+    setIsAdmin(false);
   };
 
   return (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 
 export const useEmployeeInfo = (userId: string) => {
   const [employeeInfo, setEmployeeInfo] = useState<any>(null);
@@ -8,30 +8,41 @@ export const useEmployeeInfo = (userId: string) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch employee info
-      const employeeRef = collection(db, 'employees');
-      const q = query(employeeRef, where('uid', '==', userId));
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        setEmployeeInfo(querySnapshot.docs[0].data());
-      }
+      try {
+        // Fetch employee info
+        const employeeRef = collection(db, 'employees');
+        const q = query(employeeRef, where('uid', '==', userId));
+        const querySnapshot = await getDocs(q);
 
-      // Fetch today's attendance
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const attendanceRef = collection(db, 'attendance');
-      const attendanceQuery = query(
-        attendanceRef,
-        where('employeeId', '==', userId),
-        where('date', '>=', today)
-      );
-      
-      const attendanceSnapshot = await getDocs(attendanceQuery);
-      
-      if (!attendanceSnapshot.empty) {
-        setTodayAttendance(attendanceSnapshot.docs[0].data());
+        if (!querySnapshot.empty) {
+          setEmployeeInfo(querySnapshot.docs[0].data());
+        }
+
+        // Fetch today's attendance
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayTimestamp = Timestamp.fromDate(today);
+
+        const attendanceRef = collection(db, 'attendance');
+        const attendanceQuery = query(
+          attendanceRef,
+          where('employeeId', '==', userId),
+          where('date', '==', todayTimestamp)
+        );
+
+        const attendanceSnapshot = await getDocs(attendanceQuery);
+
+        if (!attendanceSnapshot.empty) {
+          const attendanceData = attendanceSnapshot.docs[0].data();
+          setTodayAttendance({
+            ...attendanceData,
+            location: attendanceData.location
+              ? `${attendanceData.location.latitude}, ${attendanceData.location.longitude}`
+              : null,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching employee info or attendance:', error);
       }
     };
 
